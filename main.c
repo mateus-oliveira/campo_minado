@@ -51,11 +51,44 @@ void sortearBombas() {
 }
 
 
+// Verifica se a coordenada ij é válida
+int coordenadaEhValida(int i, int j) {
+    if (i >= 0 && i < LIN && j >= 0 && j < COL)
+        return 1;
+    return 0;
+}
+
+
+// Retorna a quantidade de bombas vizinhas da coordenada ij
+int quantBombasVizinhas(int i, int j) {
+    int quantidade = 0;
+    if (coordenadaEhValida(i-1, j) && jogo[i-1][j].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j) && jogo[i+1][j].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i, j-1) && jogo[i][j-1].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i, j+1) && jogo[i][j+1].eBomba)
+        quantidade += 1;
+    return quantidade;
+}
+
+
+// Contar bombas viznhas
+void contarBombas() {
+    for (int i = 0; i < LIN; i++) {
+        for (int j = 0; j < COL; j++)
+            jogo[i][j].vizinhos = quantBombasVizinhas(i, j);
+    }
+}
+
+
 
 int main(int argc, char const *argv[]) {
 
     inicializarJogo();
     sortearBombas();
-    
+    contarBombas();
+
     return 0;
 }
