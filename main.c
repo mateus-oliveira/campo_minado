@@ -18,7 +18,7 @@ void limparTela() {
     Celula
     eBomba: true ou false
     estaAberta: true ou false
-    vizinhos: 0 a 4
+    vizinhos: 0 a 8
 */
 typedef struct {
     int eBomba;
@@ -77,6 +77,14 @@ int quantBombasVizinhas(int i, int j) {
     if (coordenadaEhValida(i, j-1) && campo[i][j-1].eBomba)
         quantidade += 1;
     if (coordenadaEhValida(i, j+1) && campo[i][j+1].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j-1) && campo[i-1][j-1].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j+1) && campo[i-1][j+1].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j-1) && campo[i+1][j-1].eBomba)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j+1) && campo[i+1][j+1].eBomba)
         quantidade += 1;
     return quantidade;
 }
@@ -137,6 +145,10 @@ void abrirCelula(int i, int j) {
             abrirCelula(i+1, j);
             abrirCelula(i, j-1);
             abrirCelula(i, j+1);
+            abrirCelula(i-1, j-1);
+            abrirCelula(i-1, j+1);
+            abrirCelula(i+1, j-1);
+            abrirCelula(i+1, j+1);
         }
     }
 }
@@ -180,6 +192,15 @@ void jogar() {
     else
         printf("\nParabéns!\n");
     imprimir();
+}
+
+void menu(){
+  // novo jogo
+  // continuar
+  // modo autonomo
+  // recordes
+  // ajuda
+  // tempo
 }
 
 
