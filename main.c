@@ -28,17 +28,17 @@ typedef struct {
 
 
 
-Celula jogo[LIN][COL];
+Celula campo[LIN][COL];
 
 
 
-// Inicializar matriz jogo
+// Inicializar matriz campo
 void inicializarJogo() {
     for (int i = 0; i < LIN; i++) {
         for (int j = 0; j < COL; j++) {
-            jogo[i][j].eBomba = 0;
-            jogo[i][j].estaAberta = 0;
-            jogo[i][j].vizinhos = 0;
+            campo[i][j].eBomba = 0;
+            campo[i][j].estaAberta = 0;
+            campo[i][j].vizinhos = 0;
         }
     }
 }
@@ -51,8 +51,8 @@ void sortearBombas() {
     for (k = 0; k < QTD_BOMBAS; k++) {
         i = rand() % LIN;
         j = rand() % COL;
-        if (jogo[i][j].eBomba == 0)
-            jogo[i][j].eBomba = 1;
+        if (campo[i][j].eBomba == 0)
+            campo[i][j].eBomba = 1;
         else
             k--;
     }
@@ -70,13 +70,13 @@ int coordenadaEhValida(int i, int j) {
 // Retorna a quantidade de bombas vizinhas da coordenada ij
 int quantBombasVizinhas(int i, int j) {
     int quantidade = 0;
-    if (coordenadaEhValida(i-1, j) && jogo[i-1][j].eBomba)
+    if (coordenadaEhValida(i-1, j) && campo[i-1][j].eBomba)
         quantidade += 1;
-    if (coordenadaEhValida(i+1, j) && jogo[i+1][j].eBomba)
+    if (coordenadaEhValida(i+1, j) && campo[i+1][j].eBomba)
         quantidade += 1;
-    if (coordenadaEhValida(i, j-1) && jogo[i][j-1].eBomba)
+    if (coordenadaEhValida(i, j-1) && campo[i][j-1].eBomba)
         quantidade += 1;
-    if (coordenadaEhValida(i, j+1) && jogo[i][j+1].eBomba)
+    if (coordenadaEhValida(i, j+1) && campo[i][j+1].eBomba)
         quantidade += 1;
     return quantidade;
 }
@@ -86,7 +86,7 @@ int quantBombasVizinhas(int i, int j) {
 void contarBombas() {
     for (int i = 0; i < LIN; i++) {
         for (int j = 0; j < COL; j++)
-            jogo[i][j].vizinhos = quantBombasVizinhas(i, j);
+            campo[i][j].vizinhos = quantBombasVizinhas(i, j);
     }
 }
 
@@ -98,7 +98,7 @@ void printTitulo() {
     printf("\n==================================  CAMPO MINADO  ==================================\n\n");
 }
 
-// Imprimir matriz jogo
+// Imprimir matriz campo
 void imprimir() {
     printTitulo();
 
@@ -113,11 +113,11 @@ void imprimir() {
     for (int i = 0; i < LIN; i++) {
         printf("%d  |", i);
         for (int j = 0; j < COL; j++){
-            if (jogo[i][j].estaAberta){
-                if (jogo[i][j].eBomba)
+            if (campo[i][j].estaAberta){
+                if (campo[i][j].eBomba)
                     printf(" * ");
                 else
-                    printf(" %d ", jogo[i][j].vizinhos);
+                    printf(" %d ", campo[i][j].vizinhos);
             } else {
                 printf("   ");
             }
@@ -130,9 +130,9 @@ void imprimir() {
 
 // Abrir coordenada
 void abrirCelula(int i, int j) {
-    if (coordenadaEhValida(i, j) && jogo[i][j].estaAberta == 0){
-        jogo[i][j].estaAberta = 1;
-        if (jogo[i][j].vizinhos == 0) {
+    if (coordenadaEhValida(i, j) && campo[i][j].estaAberta == 0){
+        campo[i][j].estaAberta = 1;
+        if (campo[i][j].vizinhos == 0) {
             abrirCelula(i-1, j);
             abrirCelula(i+1, j);
             abrirCelula(i, j-1);
@@ -147,7 +147,7 @@ int ganhou() {
     int quantidade = 0;
     for (int i = 0; i < LIN; i++) {
         for (int j = 0; j < COL; j++){
-            if (jogo[i][j].estaAberta == 0 && jogo[i][j].eBomba == 0)
+            if (campo[i][j].estaAberta == 0 && campo[i][j].eBomba == 0)
                 quantidade += 1;
         }
     }
@@ -168,14 +168,14 @@ void jogar() {
                 printf("\nCoordenada inválida!\n");
                 continue;
             }
-            if (jogo[i][j].estaAberta == 1) 
+            if (campo[i][j].estaAberta == 1) 
                 printf("\nCoordenada já aberta!\n");
-        } while(coordenadaEhValida(i, j) == 0 || jogo[i][j].estaAberta == 1);
+        } while(coordenadaEhValida(i, j) == 0 || campo[i][j].estaAberta == 1);
         abrirCelula(i, j);
         limparTela();
-    } while (ganhou() != 0 && jogo[i][j].eBomba == 0);
+    } while (ganhou() != 0 && campo[i][j].eBomba == 0);
     
-    if (jogo[i][j].eBomba == 1)
+    if (campo[i][j].eBomba == 1)
         printf("\nPerdeu!\n");
     else
         printf("\nParabéns!\n");
