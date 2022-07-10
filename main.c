@@ -6,6 +6,7 @@
 #define COL 20
 #define QTD_BOMBAS 40
 
+
 /*
     Celula
     eBomba: true ou false
@@ -83,12 +84,49 @@ void contarBombas() {
 }
 
 
+void printLinhaDeSeparacao(){
+    printf("\n   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n");
+}
+void printTitulo() {
+    printf("\n==================================  CAMPO MINADO  ==================================\n\n");
+}
+
+// Imprimir matriz jogo
+void imprimir() {
+    printTitulo();
+
+    printf("   ");
+    for (int j = 0; j < COL; j++){
+        if (j < 10)
+            printf("  %d ", j); 
+        else
+            printf(" %d ", j);   
+    }
+    printLinhaDeSeparacao();
+    for (int i = 0; i < LIN; i++) {
+        printf("%d  |", i);
+        for (int j = 0; j < COL; j++){
+            if (jogo[i][j].estaAberta){
+                if (jogo[i][j].eBomba)
+                    printf(" * ");
+                else
+                    printf(" %d ", jogo[i][j].vizinhos);
+            } else {
+                printf("   ");
+            }
+            printf("|");
+        }
+        printLinhaDeSeparacao();
+    }
+}
+
 
 int main(int argc, char const *argv[]) {
 
     inicializarJogo();
     sortearBombas();
     contarBombas();
+    imprimir();
 
     return 0;
 }
