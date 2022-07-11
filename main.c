@@ -30,7 +30,13 @@ typedef struct {
 
 Celula campo[LIN][COL];
 
+void ajuda(){
+  
+}
 
+void tempo(){
+  
+}
 
 // Inicializar matriz campo
 void inicializarJogo() {
@@ -153,6 +159,34 @@ void abrirCelula(int i, int j) {
     }
 }
 
+void sairSalvar(){
+  
+}
+
+void continuar(){
+  
+}
+
+void menuJogo(){
+  int opcao;
+  //impressão menu
+  scanf("%d", &opcao);
+  switch(opcao){
+    case 1:
+      ajuda();
+      break;
+    case 2:
+      tempo();
+      break;
+    case 3:
+      continuar();
+      break;
+    case 4:
+      sairSalvar();
+  }
+  
+}
+
 
 // Verificar vitória ou derrota
 int ganhou() {
@@ -194,24 +228,53 @@ void jogar() {
     imprimir();
 }
 
-void menu(){
-  // novo jogo
-  // continuar
-  // modo autonomo
-  // recordes
-  // ajuda
-  // tempo
+void novoJogo(){
+    inicializarJogo();
+    sortearBombas();
+    contarBombas();
+    jogar();
 }
+
+void continuarJogo(){
+  
+}
+
+void modoAutonomo(){
+  
+}
+
+void recordes(){
+  
+}
+
+void menuInicio(){
+  int opcao;
+  //impressão menu
+  scanf("%d", &opcao);
+  switch(opcao){
+    case 1: 
+      novoJogo();
+      break;
+    case 2:
+      continuarJogo();
+      break;
+    case 3:
+      modoAutonomo();
+      break;
+    case 4:
+      recordes();
+      break;
+    default:
+      break;
+  }
+}
+
+
 
 
 // Função main
 int main(int argc, char const *argv[]) {
 
-    inicializarJogo();
-    sortearBombas();
-    contarBombas();
-    
-    jogar();
-
+   menuInicio();
     return 0;
 }
