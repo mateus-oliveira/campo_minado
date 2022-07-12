@@ -249,7 +249,7 @@ void recordes(){
 
 void menuInicio(){
   int opcao;
-  //impressão 
+  //impressão do menu
   scanf("%d", &opcao);
   switch(opcao){
     case 1: 
