@@ -169,7 +169,7 @@ void continuar(){
 
 void menuJogo(){
   int opcao;
-  //impressão do
+  //impressão do menu
   scanf("%d", &opcao);
   switch(opcao){
     case 1:
