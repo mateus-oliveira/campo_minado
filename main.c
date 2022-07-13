@@ -6,18 +6,18 @@
 #define LIN 10
 #define COL 20
 #define QTD_BOMBAS 40
+#define LIM_AJUDA 10
 
 
+// limpar texto no terminal
 void limparTela() {
-    const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
-    write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
+    system("clear");
 }
-
 
 /*
     Celula
-    eBomba: true ou false
-    estaAberta: true ou false
+    eBomba: 0 ou 1
+    estaAberta: 0 ou 1
     vizinhos: 0 a 8
 */
 typedef struct {
@@ -26,19 +26,37 @@ typedef struct {
     int vizinhos;
 } Celula;
 
-
-
 Celula campo[LIN][COL];
 
-void ajuda(){
-  
+
+// Função de ajuda ao jogador
+void ajuda(int * count){
+    int i, j, k = 1;
+    srand(time(NULL));
+
+    if (*count < LIM_AJUDA){
+        while (k > 0) {
+            i = rand() % LIN;
+            j = rand() % COL;
+            if (campo[i][j].eBomba == 0 && campo[i][j].estaAberta == 0){
+                campo[i][j].estaAberta = 1;
+                (*count) += 1;
+                k = -1;
+            }
+        }
+        printf("Céclula aberta: %dx%d\n\n", i, j);
+    } else {
+        printf("É permitido pedir ajuda somente %d vezes!\n\n", LIM_AJUDA);
+    }
 }
+
 
 void tempo(clock_t inicio){
     clock_t fim;
     fim = clock();
-    printf("Su tempo é de: %lu segundos", (fim - inicio)/CLOCKS_PER_SEC);
+    printf("Seu tempo é: %.2f s\n\n", (fim - inicio) / (float) 1000);
 }
+
 
 // Inicializar matriz campo
 void inicializarJogo() {
@@ -114,6 +132,7 @@ void printTitulo() {
     printf("\n==================================  CAMPO MINADO  ==================================\n\n");
 }
 
+
 // Imprimir matriz campo
 void imprimir() {
     printTitulo();
@@ -161,32 +180,40 @@ void abrirCelula(int i, int j) {
     }
 }
 
-void sairSalvar(){
+
+void salvarESair(){
   
 }
 
-void continuar(){
-  
-}
 
-void menuJogo(clock_t inicio){
-  int opcao;
-  //impressão do menu
-  scanf("%d", &opcao);
-  switch(opcao){
-    case 1:
-      ajuda();
-      break;
-    case 2:
-      tempo(inicio);
-      break;
-    case 3:
-      continuar();
-      break;
-    case 4:
-      sairSalvar();
-  }
-  
+void menuJogo(clock_t inicio, int * count, void (*callback)()){
+    int opcao;
+
+    limparTela();
+    
+    printf("1 - Continuar\n2 - Ajuda\n3 - Tempo de Jogo\n4 - Salvar e Sair\n");
+    printf("Escolha uma opção: ");
+    scanf("%d", &opcao);
+
+    limparTela();
+    switch(opcao) {
+        case 1:
+            (*callback) ();
+            break;
+        case 2:
+            ajuda(count);
+            (*callback) ();
+            break;
+        case 3:
+            tempo(inicio);
+            (*callback) ();
+            break;
+        case 4:
+            salvarESair();
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -202,33 +229,33 @@ int ganhou() {
     return quantidade;
 }
 
-/*
-    printf("Digite as coordenadas IxJ (Ex.: 9x19) ou -1 para o menu: ");
-    scanf("%d", &i);
-    if(i==-1)
-        menuJogo(inicio);
-    else 
-        scanf("x%d, &j");
-*/
 
 // Entrada das coordenadas pelo usuário
 void jogar() {
     int i, j; // i: linha; j: coluna
+    void (*callback) () = &imprimir;
+    static int countAjuda = 0;
     clock_t inicio;
     inicio = clock();
     limparTela();
     do {
         imprimir();
         do {
-            printf("Digite as coordenadas IxJ (Ex.: 9x19): ");
-            scanf("%dx%d", &i, &j);
+            printf("Digite as coordenadas IxJ (Ex.: 9x19) ou -1 para o menu: ");
+            scanf("%d", &i);
+            if (i == -1){
+                menuJogo(inicio, &countAjuda, callback);
+                continue;
+            } else {
+                scanf("x%d", &j);
+            }
             if (coordenadaEhValida(i, j) == 0){
                 printf("\nCoordenada inválida!\n");
                 continue;
             }
             if (campo[i][j].estaAberta == 1) 
                 printf("\nCoordenada já aberta!\n");
-        } while(coordenadaEhValida(i, j) == 0 || campo[i][j].estaAberta == 1);
+        } while (coordenadaEhValida(i, j) == 0 || campo[i][j].estaAberta == 1);
         abrirCelula(i, j);
         limparTela();
     } while (ganhou() != 0 && campo[i][j].eBomba == 0);
@@ -240,6 +267,8 @@ void jogar() {
     imprimir();
 }
 
+
+// Função que inicia um novo jogo
 void novoJogo(){
     inicializarJogo();
     sortearBombas();
@@ -247,46 +276,50 @@ void novoJogo(){
     jogar();
 }
 
+
 void continuarJogo(){
   
 }
+
 
 void modoAutonomo(){
   
 }
 
+
 void recordes(){
   
 }
 
-void menuInicio(){
-  int opcao;
-  //impressão do menu
-  scanf("%d", &opcao);
-  switch(opcao){
-    case 1: 
-      novoJogo();
-      break;
-    case 2:
-      continuarJogo();
-      break;
-    case 3:
-      modoAutonomo();
-      break;
-    case 4:
-      recordes();
-      break;
-    default:
-      break;
-  }
+
+void menuInicial(){
+    int opcao;
+    
+    printf("1 - Novo Jogo\n2 - Continuar\n3 - Modo Autônomo\n4 - Listar Recordes\n");
+    printf("Escolha uma opção: ");
+    scanf("%d", &opcao);
+
+    switch (opcao) {
+        case 1: 
+            novoJogo();
+            break;
+        case 2:
+            continuarJogo();
+            break;
+        case 3:
+            modoAutonomo();
+            break;
+        case 4:
+            recordes();
+            break;
+        default:
+            break;
+    }
 }
-
-
 
 
 // Função main
 int main(int argc, char const *argv[]) {
-
-   menuInicio();
+    menuInicial();
     return 0;
 }
