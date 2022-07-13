@@ -34,8 +34,10 @@ void ajuda(){
   
 }
 
-void tempo(){
-  
+void tempo(clock_t inicio){
+    clock_t fim;
+    fim = clock();
+    printf("Su tempo é de: %lu segundos", (fim - inicio)/CLOCKS_PER_SEC);
 }
 
 // Inicializar matriz campo
@@ -167,7 +169,7 @@ void continuar(){
   
 }
 
-void menuJogo(){
+void menuJogo(clock_t inicio){
   int opcao;
   //impressão do menu
   scanf("%d", &opcao);
@@ -176,7 +178,7 @@ void menuJogo(){
       ajuda();
       break;
     case 2:
-      tempo();
+      tempo(inicio);
       break;
     case 3:
       continuar();
@@ -200,10 +202,20 @@ int ganhou() {
     return quantidade;
 }
 
+/*
+    printf("Digite as coordenadas IxJ (Ex.: 9x19) ou -1 para o menu: ");
+    scanf("%d", &i);
+    if(i==-1)
+        menuJogo(inicio);
+    else 
+        scanf("x%d, &j");
+*/
 
 // Entrada das coordenadas pelo usuário
 void jogar() {
     int i, j; // i: linha; j: coluna
+    clock_t inicio;
+    inicio = clock();
     limparTela();
     do {
         imprimir();
