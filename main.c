@@ -44,7 +44,7 @@ void ajuda(int * count){
                 k = -1;
             }
         }
-        printf("Céclula aberta: %dx%d\n\n", i, j);
+        printf("Céclula aberta: %dx%d\n\n", i+1, j+1);
     } else {
         printf("É permitido pedir ajuda somente %d vezes!\n\n", LIM_AJUDA);
     }
@@ -126,7 +126,7 @@ void contarBombas() {
 
 
 void printLinhaDeSeparacao(){
-    printf("\n   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n");
+    printf("\n    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n");
 }
 void printTitulo() {
     printf("\n==================================  CAMPO MINADO  ==================================\n\n");
@@ -137,16 +137,19 @@ void printTitulo() {
 void imprimir() {
     printTitulo();
 
-    printf("   ");
+    printf("    ");
     for (int j = 0; j < COL; j++){
-        if (j < 10)
-            printf("  %d ", j); 
+        if (j < 9)
+            printf("  %d ", j+1); 
         else
-            printf(" %d ", j);   
+            printf(" %d ", j+1);   
     }
     printLinhaDeSeparacao();
     for (int i = 0; i < LIN; i++) {
-        printf("%d  |", i);
+        if (i < 9) 
+            printf(" %d  |", i+1); 
+        else
+            printf("%d  |", i+1);
         for (int j = 0; j < COL; j++){
             if (campo[i][j].estaAberta){
                 if (campo[i][j].eBomba)
@@ -241,13 +244,15 @@ void jogar() {
     do {
         imprimir();
         do {
-            printf("Digite as coordenadas IxJ (Ex.: 9x19) ou -1 para o menu: ");
+            printf("Digite as coordenadas IxJ (Ex.: %dx%d) ou 0 para o menu: ", LIN, COL);
             scanf("%d", &i);
-            if (i == -1){
+            if (i == 0){
                 menuJogo(inicio, &countAjuda, callback);
                 continue;
             } else {
                 scanf("x%d", &j);
+                i--;
+                j--;
             }
             if (coordenadaEhValida(i, j) == 0){
                 printf("\nCoordenada inválida!\n");
