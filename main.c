@@ -40,7 +40,7 @@ int coordenadaEhValida(int i, int j) {
 void abrirCelula(int i, int j) {
     if (coordenadaEhValida(i, j) && campo[i][j].estaAberta == 0){
         campo[i][j].estaAberta = 1;
-        if (campo[i][j].vizinhos == 0) {
+        if (campo[i][j].vizinhos == 0 && campo[i][j].eBomba==0) {
             abrirCelula(i-1, j);
             abrirCelula(i+1, j);
             abrirCelula(i, j-1);
@@ -97,11 +97,11 @@ int vizinhosValidos(int i, int j){
     return quantidade;
 }
 
-//Função para definir a linha e coluna
+//Função para definir a linha e coluna com o menor número de bombas vizinhas
 void definirLinECol(int *lin, int *col, int *aux){
   for(int i=0; i<LIN;i++){
             for(int j=0;j<COL;j++){
-                if(campo[i][j].estaAberta==1 && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
+                if(campo[i][j].estaAberta && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
                     if(campo[i][j].vizinhos<*aux){
                         *lin=i;
                         *col=j;
@@ -112,55 +112,44 @@ void definirLinECol(int *lin, int *col, int *aux){
         }
 }
 
-// Abre um vizinho aleatório 
-void abrirVizinho(int lin, int col){
+// Escolhe um vizinho aleatório 
+void escolherVizinho(int* lin, int* col){
     int escolha, k=1;
+    srand(time(NULL));
     while(k!=0){
         escolha = rand() % 8;
-        switch(escolha){
-            case 0:
-            abrirCelula(lin-1, col);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        if(coordenadaEhValida(*lin-1,*col) && escolha==0 && campo[*lin-1][*col].estaAberta==0){
             k=0;
-            break;
-            case 1:
-            abrirCelula(lin-1, col-1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            *lin=*lin-1;
+        }if(coordenadaEhValida(*lin-1,*col-1) && escolha==1 && campo[*lin-1][*col-1].estaAberta==0){
             k=0;
-            break;
-            case 2:
-            abrirCelula(lin, col-1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            *lin=*lin-1;
+            *col=*col-1;
+        }if(coordenadaEhValida(*lin, *col-1) && escolha==2 && campo[*lin][*col-1].estaAberta==0){
+            *col=*col-1;
             k=0;
-            break;
-            case 3:
-            abrirCelula(lin+1, col);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        }if(coordenadaEhValida(*lin+1,*col) && escolha==3 && campo[*lin+1][*col].estaAberta==0){
+            *lin=*lin+1;
             k=0;
-            break;
-            case 4:
-            abrirCelula(lin+1, col+1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        }if(coordenadaEhValida(*lin+1,*col+1) && escolha==4 && campo[*lin+1][*col+1].estaAberta==0){
+            *lin=*lin+1;
+            *col=*col-+1;
             k=0;
-            break;
-            case 5:
-            abrirCelula(lin, col+1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        }if(coordenadaEhValida(*lin,*col+1) && escolha==5 && campo[*lin][*col+1].estaAberta==0){
             k=0;
-            break;
-            case 6:
-            abrirCelula(lin-1, col+1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            *col=*col+1;
+        }if(coordenadaEhValida(*lin-1,*col+1) && escolha==6 && campo[*lin-1][*col+1].estaAberta==0){
+            *lin=*lin-1;
+            *col=*col+1;
             k=0;
-            break;
-            case 7:
-            abrirCelula(lin+1, col-1);
-            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        }if(coordenadaEhValida(*lin+1, *col-1) && escolha==7 && campo[*lin+1][*col-1].estaAberta==0 ){
             k=0;
-            break;
+            *lin=*lin+1;
+            *col=*col-1;
         }
     }
 }
+
 
 // Função de ajuda ao jogador
 void ajuda(int * count){
@@ -172,7 +161,9 @@ void ajuda(int * count){
           lin = rand() % LIN;
           col = rand() % COL;
         }
-        abrirVizinho(lin, col);
+        escolherVizinho(&lin, &col);
+        abrirCelula(lin, col);
+        printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
         (*count) += 1;
     }else 
         printf("É permitido pedir ajuda somente %d vezes!\n\n", LIM_AJUDA);
@@ -368,10 +359,10 @@ void jogar() {
     } while (ganhou() != 0 && campo[i][j].eBomba == 0);
     
     if (campo[i][j].eBomba == 1){
-        printf("\nPerdeu!\n");
+        printf("\nQue pena, você perdeu!\n");
     }  
     else
-        printf("\nParabéns!\n");
+        printf("\nParabéns! Você ganhou!\n");
     imprimir();
 }
 
@@ -390,13 +381,52 @@ void continuarJogo(){
 }
 
 
-void modoAutonomo(){
+void recordes(){
   
 }
 
 
-void recordes(){
-  
+
+
+void modoAutonomo(){
+    inicializarJogo();
+    sortearBombas();
+    contarBombas();
+    limparTela();
+    int jogadas=0, aux, lin, col, n=9;
+    srand(time(NULL));
+    do {
+        imprimir();
+        if(jogadas>0)
+          printf("\nCélula aberta: %dx%d\n", lin+1, col+1);
+        do {
+            aux=rand()%4;
+            if(jogadas<3){
+            if(aux==0)
+                lin=0; col=0;
+            if(aux==1)
+                lin=0; col=19;
+            if(aux==2)
+                lin=19; col=0;
+            if(aux==3)
+                lin=19; col=19;
+            }else{
+                definirLinECol(&lin,&col,&n);
+                escolherVizinho(&lin, &col);
+            }jogadas++;
+        } while (coordenadaEhValida(lin, col) == 0 || campo[lin][col].estaAberta == 1);
+        abrirCelula(lin, col);
+        limparTela();
+    } while (ganhou() != 0 && campo[lin][col].eBomba == 0);
+    
+    if (campo[lin][col].eBomba == 1){
+        printf("\nJogo acabou, modo autônomo perdeu!\n");
+    }  
+    else
+        printf("\nModo autônomo ganhou!\n");
+    imprimir();
+    
+
 }
 
 
