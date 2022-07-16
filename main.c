@@ -28,26 +28,154 @@ typedef struct {
 
 Celula campo[LIN][COL];
 
+// Verifica se a coordenada ij é válida
+int coordenadaEhValida(int i, int j) {
+    if (i >= 0 && i < LIN && j >= 0 && j < COL)
+        return 1;
+    return 0;
+}
+
+
+// Abrir coordenada
+void abrirCelula(int i, int j) {
+    if (coordenadaEhValida(i, j) && campo[i][j].estaAberta == 0){
+        campo[i][j].estaAberta = 1;
+        if (campo[i][j].vizinhos == 0) {
+            abrirCelula(i-1, j);
+            abrirCelula(i+1, j);
+            abrirCelula(i, j-1);
+            abrirCelula(i, j+1);
+            abrirCelula(i-1, j-1);
+            abrirCelula(i-1, j+1);
+            abrirCelula(i+1, j-1);
+            abrirCelula(i+1, j+1);
+        }
+    }
+}
+
+// Conta os vizinhos que estão abertos
+int vizinhosAbertos(int i, int j){
+    int quantidade = 0;
+    if (coordenadaEhValida(i-1, j) && campo[i-1][j].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j) && campo[i+1][j].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i, j-1) && campo[i][j-1].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i, j+1) && campo[i][j+1].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j-1) && campo[i-1][j-1].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j+1) && campo[i-1][j+1].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j-1) && campo[i+1][j-1].estaAberta)
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j+1) && campo[i+1][j+1].estaAberta)
+        quantidade += 1;
+    return quantidade;
+}
+
+// Conta quantos vizinhos uma celula tem
+int vizinhosValidos(int i, int j){
+    int quantidade = 0;
+    if (coordenadaEhValida(i-1, j))
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j))
+        quantidade += 1;
+    if (coordenadaEhValida(i, j-1))
+        quantidade += 1;
+    if (coordenadaEhValida(i, j+1))
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j-1))
+        quantidade += 1;
+    if (coordenadaEhValida(i-1, j+1))
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j-1))
+        quantidade += 1;
+    if (coordenadaEhValida(i+1, j+1))
+        quantidade += 1;
+    return quantidade;
+}
+
+//Função para definir a linha e coluna
+void definirLinECol(int *lin, int *col, int *aux){
+  for(int i=0; i<LIN;i++){
+            for(int j=0;j<COL;j++){
+                if(campo[i][j].estaAberta==1 && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
+                    if(campo[i][j].vizinhos<*aux){
+                        *lin=i;
+                        *col=j;
+                        *aux=campo[i][j].vizinhos;
+                    }
+                }
+            }
+        }
+}
+
+// Abre um vizinho aleatório 
+void abrirVizinho(int lin, int col){
+    int escolha, k=1;
+    while(k!=0){
+        escolha = rand() % 8;
+        switch(escolha){
+            case 0:
+            abrirCelula(lin-1, col);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 1:
+            abrirCelula(lin-1, col-1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 2:
+            abrirCelula(lin, col-1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 3:
+            abrirCelula(lin+1, col);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 4:
+            abrirCelula(lin+1, col+1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 5:
+            abrirCelula(lin, col+1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 6:
+            abrirCelula(lin-1, col+1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+            case 7:
+            abrirCelula(lin+1, col-1);
+            printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+            k=0;
+            break;
+        }
+    }
+}
 
 // Função de ajuda ao jogador
 void ajuda(int * count){
-    int i, j, k = 1;
+    int lin, col, aux=9;
     srand(time(NULL));
-
     if (*count < LIM_AJUDA){
-        while (k > 0) {
-            i = rand() % LIN;
-            j = rand() % COL;
-            if (campo[i][j].eBomba == 0 && campo[i][j].estaAberta == 0){
-                campo[i][j].estaAberta = 1;
-                (*count) += 1;
-                k = -1;
-            }
+        definirLinECol(&lin, &col, &aux);
+        if(aux==9){
+          lin = rand() % LIN;
+          col = rand() % COL;
         }
-        printf("Céclula aberta: %dx%d\n\n", i+1, j+1);
-    } else {
+        abrirVizinho(lin, col);
+        (*count) += 1;
+    }else 
         printf("É permitido pedir ajuda somente %d vezes!\n\n", LIM_AJUDA);
-    }
 }
 
 
@@ -82,14 +210,6 @@ void sortearBombas() {
         else
             k--;
     }
-}
-
-
-// Verifica se a coordenada ij é válida
-int coordenadaEhValida(int i, int j) {
-    if (i >= 0 && i < LIN && j >= 0 && j < COL)
-        return 1;
-    return 0;
 }
 
 
@@ -162,24 +282,6 @@ void imprimir() {
             printf("|");
         }
         printLinhaDeSeparacao();
-    }
-}
-
-
-// Abrir coordenada
-void abrirCelula(int i, int j) {
-    if (coordenadaEhValida(i, j) && campo[i][j].estaAberta == 0){
-        campo[i][j].estaAberta = 1;
-        if (campo[i][j].vizinhos == 0) {
-            abrirCelula(i-1, j);
-            abrirCelula(i+1, j);
-            abrirCelula(i, j-1);
-            abrirCelula(i, j+1);
-            abrirCelula(i-1, j-1);
-            abrirCelula(i-1, j+1);
-            abrirCelula(i+1, j-1);
-            abrirCelula(i+1, j+1);
-        }
     }
 }
 
@@ -265,8 +367,9 @@ void jogar() {
         limparTela();
     } while (ganhou() != 0 && campo[i][j].eBomba == 0);
     
-    if (campo[i][j].eBomba == 1)
+    if (campo[i][j].eBomba == 1){
         printf("\nPerdeu!\n");
+    }  
     else
         printf("\nParabéns!\n");
     imprimir();
