@@ -393,29 +393,45 @@ void modoAutonomo(){
     sortearBombas();
     contarBombas();
     limparTela();
-    int jogadas=0, aux, lin, col, n=9;
+    int jogadas=0, lin, col, n, aux;
     srand(time(NULL));
     do {
         imprimir();
-        if(jogadas>0)
-          printf("\nCélula aberta: %dx%d\n", lin+1, col+1);
-        do {
+        n=9;
+        if(jogadas==0){
             aux=rand()%4;
-            if(jogadas<3){
-            if(aux==0)
-                lin=0; col=0;
-            if(aux==1)
-                lin=0; col=19;
-            if(aux==2)
-                lin=19; col=0;
-            if(aux==3)
-                lin=19; col=19;
-            }else{
-                definirLinECol(&lin,&col,&n);
-                escolherVizinho(&lin, &col);
-            }jogadas++;
-        } while (coordenadaEhValida(lin, col) == 0 || campo[lin][col].estaAberta == 1);
+            switch (aux)
+            {
+            case 0:
+                lin=0;
+                col=0;
+                break;
+            case 1:
+                lin=0;
+                col=19;
+                break;
+            case 2:
+                lin=9;
+                col=0;
+                break;
+            case 3: 
+                lin=9;
+                col=19;
+                break;
+            default:
+                break;
+            }
+        }else if(jogadas>0){
+            printf("\nCélula aberta: %dx%d\n", lin+1, col+1);
+            definirLinECol(&lin,&col,&n);
+            if(n==9){
+                lin=rand()%10;
+                col=rand()%20;
+            }
+            escolherVizinho(&lin, &col);
+        }jogadas++;
         abrirCelula(lin, col);
+        //scanf("\n");
         limparTela();
     } while (ganhou() != 0 && campo[lin][col].eBomba == 0);
     
@@ -425,8 +441,6 @@ void modoAutonomo(){
     else
         printf("\nModo autônomo ganhou!\n");
     imprimir();
-    
-
 }
 
 
