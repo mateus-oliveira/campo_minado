@@ -3,6 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 
+
 #define LIN 10
 #define COL 20
 #define QTD_BOMBAS 40
@@ -99,17 +100,17 @@ int vizinhosValidos(int i, int j){
 
 //Função para definir a linha e coluna com o menor número de bombas vizinhas
 void definirLinECol(int *lin, int *col, int *aux){
-  for(int i=0; i<LIN;i++){
-            for(int j=0;j<COL;j++){
-                if(campo[i][j].estaAberta && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
-                    if(campo[i][j].vizinhos<*aux){
-                        *lin=i;
-                        *col=j;
-                        *aux=campo[i][j].vizinhos;
-                    }
+    for (int i=0; i<LIN;i++){
+        for (int j=0;j<COL;j++){
+            if(campo[i][j].estaAberta && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
+                if(campo[i][j].vizinhos<*aux){
+                    *lin=i;
+                    *col=j;
+                    *aux=campo[i][j].vizinhos;
                 }
             }
         }
+    }
 }
 
 // Escolhe um vizinho aleatório 
@@ -133,7 +134,7 @@ void escolherVizinho(int* lin, int* col){
             k=0;
         }if(coordenadaEhValida(*lin+1,*col+1) && escolha==4 && campo[*lin+1][*col+1].estaAberta==0){
             *lin=*lin+1;
-            *col=*col-+1;
+            *col=*col+1;
             k=0;
         }if(coordenadaEhValida(*lin,*col+1) && escolha==5 && campo[*lin][*col+1].estaAberta==0){
             k=0;
@@ -162,8 +163,7 @@ void ajuda(int * count){
           col = rand() % COL;
         }
         escolherVizinho(&lin, &col);
-        abrirCelula(lin, col);
-        printf("Célula aberta: %dx%d\n\n", lin+1, col+1);
+        printf("Célula sugerida: %dx%d\n\n", lin+1, col+1);
         (*count) += 1;
     }else 
         printf("É permitido pedir ajuda somente %d vezes!\n\n", LIM_AJUDA);
@@ -281,30 +281,57 @@ void salvarESair(){
   
 }
 
+void modoAutonomo(int (*ganhou_cb)()){
+    limparTela();
+    int lin, col, n, aux;
+    srand(time(NULL));
+    do {
+        imprimir();
+        n=9;
+        printf("\nCélula aberta: %dx%d\n", lin+1, col+1);
+        definirLinECol(&lin,&col,&n);
+        if(n==9){
+            lin=rand() % LIN;
+            col=rand() % COL;
+        }
+        escolherVizinho(&lin, &col);
+        abrirCelula(lin, col);
+        limparTela();
+    } while ((*ganhou_cb)() != 0 && campo[lin][col].eBomba == 0);
+    
+    if (campo[lin][col].eBomba == 1)
+        printf("\nJogo acabou, Bumblebee perdeu!\n");
+    else
+        printf("\nBumblebee ganhou!\n");
+    
+    imprimir();
+}
 
-void menuJogo(clock_t inicio, int * count, void (*callback)()){
+
+void menuJogo(clock_t inicio, int * count, int (*ganhou_cb)(), void (*menuInicio_cb)()){
     int opcao;
 
     limparTela();
     
-    printf("1 - Continuar\n2 - Ajuda\n3 - Tempo de Jogo\n4 - Salvar e Sair\n");
+    printf("1 - Continuar\n2 - Ajuda\n3 - Tempo de Jogo\n4 - Bumblebee\n5 - Salvar e Sair\n");
     printf("Escolha uma opção: ");
     scanf("%d", &opcao);
 
     limparTela();
     switch(opcao) {
         case 1:
-            (*callback) ();
             break;
         case 2:
             ajuda(count);
-            (*callback) ();
             break;
         case 3:
             tempo(inicio);
-            (*callback) ();
             break;
         case 4:
+            modoAutonomo(ganhou_cb);
+            (*menuInicio_cb)();
+            break;
+        case 5:
             salvarESair();
             break;
         default:
@@ -327,10 +354,10 @@ int ganhou() {
 
 
 // Entrada das coordenadas pelo usuário
-void jogar() {
+void jogar(void (*menuInicio_cb)()) {
     int i, j; // i: linha; j: coluna
-    void (*callback) () = &imprimir;
     static int countAjuda = 0;
+    int (*ganhou_cb)() = &ganhou;
     clock_t inicio;
     inicio = clock();
     limparTela();
@@ -340,7 +367,8 @@ void jogar() {
             printf("Digite as coordenadas IxJ (Ex.: %dx%d) ou 0 para o menu: ", LIN, COL);
             scanf("%d", &i);
             if (i == 0){
-                menuJogo(inicio, &countAjuda, callback);
+                menuJogo(inicio, &countAjuda, ganhou_cb, menuInicio_cb);
+                imprimir();
                 continue;
             } else {
                 scanf("x%d", &j);
@@ -368,11 +396,11 @@ void jogar() {
 
 
 // Função que inicia um novo jogo
-void novoJogo(){
+void novoJogo(void (*menuInicio_cb)()){
     inicializarJogo();
     sortearBombas();
     contarBombas();
-    jogar();
+    jogar(menuInicio_cb);
 }
 
 
@@ -386,82 +414,23 @@ void recordes(){
 }
 
 
-
-
-void modoAutonomo(){
-    inicializarJogo();
-    sortearBombas();
-    contarBombas();
-    limparTela();
-    int jogadas=0, lin, col, n, aux;
-    srand(time(NULL));
-    do {
-        imprimir();
-        n=9;
-        if(jogadas==0){
-            aux=rand()%4;
-            switch (aux)
-            {
-            case 0:
-                lin=0;
-                col=0;
-                break;
-            case 1:
-                lin=0;
-                col=19;
-                break;
-            case 2:
-                lin=9;
-                col=0;
-                break;
-            case 3: 
-                lin=9;
-                col=19;
-                break;
-            default:
-                break;
-            }
-        }else if(jogadas>0){
-            printf("\nCélula aberta: %dx%d\n", lin+1, col+1);
-            definirLinECol(&lin,&col,&n);
-            if(n==9){
-                lin=rand()%10;
-                col=rand()%20;
-            }
-            escolherVizinho(&lin, &col);
-        }jogadas++;
-        abrirCelula(lin, col);
-        //scanf("\n");
-        limparTela();
-    } while (ganhou() != 0 && campo[lin][col].eBomba == 0);
-    
-    if (campo[lin][col].eBomba == 1){
-        printf("\nJogo acabou, modo autônomo perdeu!\n");
-    }  
-    else
-        printf("\nModo autônomo ganhou!\n");
-    imprimir();
-}
-
-
-void menuInicial(){
+void menuInicio(){
     int opcao;
+
+    void (*menuInicio_cb)() = &menuInicio;
     
-    printf("1 - Novo Jogo\n2 - Continuar\n3 - Modo Autônomo\n4 - Listar Recordes\n");
+    printf("1 - Novo Jogo\n2 - Continuar\n3 - Listar Recordes\n");
     printf("Escolha uma opção: ");
     scanf("%d", &opcao);
 
     switch (opcao) {
         case 1: 
-            novoJogo();
+            novoJogo(menuInicio_cb);
             break;
         case 2:
             continuarJogo();
             break;
         case 3:
-            modoAutonomo();
-            break;
-        case 4:
             recordes();
             break;
         default:
@@ -472,6 +441,6 @@ void menuInicial(){
 
 // Função main
 int main(int argc, char const *argv[]) {
-    menuInicial();
+    menuInicio();
     return 0;
 }
