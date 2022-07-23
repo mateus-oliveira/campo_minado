@@ -308,6 +308,29 @@ void modoAutonomo(int (*ganhou_cb)()){
 }
 
 
+int contarCelulasAbertas() {
+    int abertas = 0;
+
+    for (int i = 0; i < LIN; i++){
+        for (int j = 0; j < COL; j++){
+            if (campo[i][j].estaAberta && campo[i][j].eBomba == 0)
+                abertas += 1;
+        }
+    }
+
+    return abertas;
+}
+
+
+void registrarRecordes() {
+    int abertas = contarCelulasAbertas();
+
+    printf("\nSeu recorde foi: %d células abertas.\n", abertas);
+
+    // salvar recorde;
+}
+
+
 void menuJogo(clock_t inicio, int * count, int (*ganhou_cb)(), void (*menuInicio_cb)()){
     int opcao;
 
@@ -391,6 +414,9 @@ void jogar(void (*menuInicio_cb)()) {
     }  
     else
         printf("\nParabéns! Você ganhou!\n");
+
+    registrarRecordes();
+    
     imprimir();
 }
 
