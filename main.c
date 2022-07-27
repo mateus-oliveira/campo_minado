@@ -325,7 +325,7 @@ int contarCelulasAbertas() {
 void registrarRecordes() {
     int abertas = contarCelulasAbertas();
 
-    printf("\nSeu recorde foi: %d células abertas.\n", abertas);
+    printf("\nSeu recorde foi: %d células abertas!\n", abertas);
 
     // salvar recorde;
 }
