@@ -15,6 +15,13 @@ void limparTela() {
     system("clear");
 }
 
+// Recorde struct
+typedef struct {
+    int pontuacao;
+    char nome[50];
+} Recorde;
+
+
 /*
     Celula
     eBomba: 0 ou 1
@@ -277,10 +284,45 @@ void imprimir() {
 }
 
 
-void salvarESair(){
-  
+// Carregar jogo salvo em campo.bin
+void carregarJogoSalvo() {
+    limparTela();
+	FILE * arq = fopen("campo.bin", "rb");
+
+	if (arq != NULL) {
+        for (int i = 0; i < LIN; i++) {
+            for (int j = 0; j < COL; j++) {
+                Celula c;
+                size_t r = fread(&c, sizeof(Celula), 1, arq);
+                campo[i][j] = c;
+            }
+        } 
+		fclose(arq);
+	} else {
+		printf("\nErro ao abrir o arquivo para leitura!\n");
+	}
 }
 
+
+// Salvar Jogo e Sair
+void salvarESair(){
+    FILE * arq;
+    remove("campo.bin");
+    arq = fopen("campo.bin", "ab");
+    if (arq != NULL) {
+        for(int i = 0; i < LIN; i++){
+            for (int j = 0; j < COL; j++)
+                fwrite(&campo[i][j], sizeof(Celula), 1, arq);
+        }
+        fclose(arq);
+    } else {
+        printf("\nErro ao abrir o arquivo para escrita!\n");
+    }
+    exit(1);
+}
+
+
+// Modo Autônomo
 void modoAutonomo(int (*ganhou_cb)()){
     limparTela();
     int lin, col, n, aux;
@@ -324,10 +366,22 @@ int contarCelulasAbertas() {
 
 void registrarRecordes() {
     int abertas = contarCelulasAbertas();
+    Recorde r;
+    printf("Fim de jogo!\nInforme o seu nome: ");
+    scanf("\n%[^\n]s", r.nome);
 
     printf("\nSeu recorde foi: %d células abertas!\n", abertas);
 
-    // salvar recorde;
+    r.pontuacao = abertas;
+
+    FILE * arq;
+    arq = fopen("recordes.bin", "ab");
+    if (arq != NULL) {
+        fwrite(&r, sizeof(Recorde), 1, arq);
+        fclose(arq);
+    } else {
+        printf("\nErro ao abrir o arquivo para leitura!\n");
+    }
 }
 
 
@@ -387,6 +441,7 @@ void jogar(void (*menuInicio_cb)()) {
     do {
         imprimir();
         do {
+            printf("Evite encontrar as %d bombas!\n", QTD_BOMBAS);
             printf("Digite as coordenadas IxJ (Ex.: %dx%d) ou 0 para o menu: ", LIN, COL);
             scanf("%d", &i);
             if (i == 0){
@@ -429,17 +484,37 @@ void novoJogo(void (*menuInicio_cb)()){
     jogar(menuInicio_cb);
 }
 
-
-void continuarJogo(){
-  
+// Função que carrega e continua os jogos
+void continuarJogo(void (*menuInicio_cb)()){
+    carregarJogoSalvo();
+    jogar(menuInicio_cb);
 }
 
 
 void recordes(){
-  
+    limparTela();
+	FILE * arq = fopen("recordes.bin", "rb");
+
+	if (arq != NULL) {
+		int indice = 0;
+		while (1) {
+			Recorde rec;
+
+			size_t r = fread(&rec, sizeof(Recorde), 1, arq);
+
+			if(r < 1)
+				break;
+			else
+				printf("%s - %d\n", rec.nome, rec.pontuacao);
+		}
+		fclose(arq);
+    } else {
+		printf("\nErro ao abrir o arquivo para leitura!\n");
+	}
 }
 
 
+// Menu Inicial
 void menuInicio(){
     int opcao;
 
@@ -454,7 +529,7 @@ void menuInicio(){
             novoJogo(menuInicio_cb);
             break;
         case 2:
-            continuarJogo();
+            continuarJogo(menuInicio_cb);
             break;
         case 3:
             recordes();
