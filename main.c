@@ -36,6 +36,7 @@ typedef struct {
 
 Celula campo[LIN][COL];
 
+
 // Verifica se a coordenada ij é válida
 int coordenadaEhValida(int i, int j) {
     if (i >= 0 && i < LIN && j >= 0 && j < COL)
@@ -61,6 +62,7 @@ void abrirCelula(int i, int j) {
     }
 }
 
+
 // Conta os vizinhos que estão abertos
 int vizinhosAbertos(int i, int j){
     int quantidade = 0;
@@ -82,6 +84,7 @@ int vizinhosAbertos(int i, int j){
         quantidade += 1;
     return quantidade;
 }
+
 
 // Conta quantos vizinhos uma celula tem
 int vizinhosValidos(int i, int j){
@@ -105,11 +108,12 @@ int vizinhosValidos(int i, int j){
     return quantidade;
 }
 
+
 //Função para definir a linha e coluna com o menor número de bombas vizinhas
 void definirLinECol(int *lin, int *col, int *aux){
     for (int i=0; i<LIN;i++){
         for (int j=0;j<COL;j++){
-            if(campo[i][j].estaAberta && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j))){
+            if(campo[i][j].estaAberta && campo[i][j].vizinhos!=0 && vizinhosValidos(i, j)>(campo[i][j].vizinhos + vizinhosAbertos(i,j) + 1)){
                 if(campo[i][j].vizinhos<*aux){
                     *lin=i;
                     *col=j;
@@ -119,6 +123,7 @@ void definirLinECol(int *lin, int *col, int *aux){
         }
     }
 }
+
 
 // Escolhe um vizinho aleatório 
 void escolherVizinho(int* lin, int* col){
@@ -299,7 +304,8 @@ void carregarJogoSalvo() {
         } 
 		fclose(arq);
 	} else {
-		printf("\nErro ao abrir o arquivo para leitura!\n");
+		printf("Não existe jogo salvo!\n");
+        exit(0);
 	}
 }
 
@@ -509,7 +515,8 @@ void recordes(){
 		}
 		fclose(arq);
     } else {
-		printf("\nErro ao abrir o arquivo para leitura!\n");
+		printf("Não há recordes registrados!\n");
+        exit(0);
 	}
 }
 
